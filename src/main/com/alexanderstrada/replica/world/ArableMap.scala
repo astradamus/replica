@@ -2,6 +2,7 @@ package com.alexanderstrada.replica.world
 
 import com.alexanderstrada.replica.sim.SimClock
 import com.alexanderstrada.replica.space2d.{Calc, Rect, Vector2d}
+import com.alexanderstrada.replica.world.ArableMap.ImprintOutOfBoundsException
 
 import scala.util.Random
 
@@ -44,8 +45,8 @@ class ArableMap(
     val maxX = toGridExclusive(r.right, cellWidth)
     val maxY = toGridExclusive(r.bottom, cellHeight)
 
-    if (minX < 0 || minY < 0 || maxX > cellsPerAxis || maxY > cellsPerAxis)
-      throw new IndexOutOfBoundsException("Tried to imprint an out-of-bounds rect.")
+    if (minX < 0 || minY < 0 || maxX >= cellsPerAxis || maxY >= cellsPerAxis)
+      throw new ImprintOutOfBoundsException("Tried to imprint out-of-bounds rect " + r)
 
     var count = 0
     for (x <- minX to maxX; y <- minY to maxY) {
@@ -86,4 +87,8 @@ class ArableMap(
     val cellStart = cell * cellWidthOrHeight
     if (rightOrBottom - cellStart > 0.0) cell else cell - 1
   }
+}
+
+object ArableMap {
+  class ImprintOutOfBoundsException(message: String) extends IndexOutOfBoundsException(message)
 }

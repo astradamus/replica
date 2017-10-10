@@ -2,6 +2,7 @@ package com.alexanderstrada.replica.world
 
 import com.alexanderstrada.replica.sim.SimClock
 import com.alexanderstrada.replica.space2d.{Calc, Rect}
+import com.alexanderstrada.replica.world.ArableMap.ImprintOutOfBoundsException
 import org.scalatest._
 
 class ArableMapTest extends FlatSpec with Matchers {
@@ -17,11 +18,12 @@ class ArableMapTest extends FlatSpec with Matchers {
 
   it should "reject imprints that are out of bounds" in {
     val m = mkMap
-    m.imprint(Rect.mkFromTopLeft(0, 0, mapSize, mapSize)) should be (Calc.square(cellsPerAxis))
-    an [IndexOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(-1, 0, mapSize, mapSize)) }
-    an [IndexOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(0, -1, mapSize, mapSize)) }
-    an [IndexOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(1, 0, mapSize, mapSize)) }
-    an [IndexOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(0, 1, mapSize, mapSize)) }
+    val size = mapSize / 10
+    val pos = mapSize - size / 2
+    an [ImprintOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(-1, 0, size, size)) }
+    an [ImprintOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(0, -1, size, size)) }
+    an [ImprintOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(pos, 0, size, size)) }
+    an [ImprintOutOfBoundsException] shouldBe thrownBy { m.imprint(Rect.mkFromTopLeft(0, pos, size, size)) }
   }
 
   it should "not be crashed by imprints that sit on its upper bounds" in {

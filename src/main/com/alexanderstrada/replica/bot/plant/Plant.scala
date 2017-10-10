@@ -52,8 +52,12 @@ class Plant(
   /** Grow. Germ at target size.*/
   private def grow() = {
     size += w.rules.plantGermFeedValue
-    if (size >= genome(Genome.SIZE_TO_FRUIT))
+
+    val stf = genome(Genome.SIZE_TO_FRUIT)
+    if (size >= stf) {
+      size = stf
       germed = true
+    }
   }
 
   /** Grow fruit by `world.rules.plantFruitFeedValue` and spawn if fully grown.*/
