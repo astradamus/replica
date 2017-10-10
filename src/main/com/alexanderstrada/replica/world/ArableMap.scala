@@ -29,15 +29,25 @@ class ArableMap(
   private val _grid = Array.tabulate(Calc.square(cellsPerAxis).toInt)(_ => maybeBarren)
 
   /** Return true if the given world-space vector is contained by a cell that has fed a plant this turn.*/
-  def isVectorTapped(v: Vector2d) = get(toGridX(v.x), toGridY(v.y)) >= simClock.clock
+  def isVectorTapped(v: Vector2d) = {
+    val gX = toGrid(v.x, cellWidth)
+    val gY = toGrid(v.y, cellHeight)
+    get(gX, gY) >= simClock.clock
+  }
 
   /** Converts the given world-space rectangle to grid-space, taps each
     * untapped cell it touches, and returns the number of cells tapped.*/
   def imprint(r: Rect) = {
-    val (minX, maxX) = (toGridX(r.left), toGridX(r.right))
-    val (minY, maxY) = (toGridY(r.top), toGridY(r.bottom))
-    var count = 0
 
+    val minX = toGrid(r.left, cellWidth)
+    val minY = toGrid(r.top, cellHeight)
+    val maxX = toGridExclusive(r.right, cellWidth)
+    val maxY = toGridExclusive(r.bottom, cellHeight)
+
+    if (minX < 0 || minY < 0 || maxX > cellsPerAxis || maxY > cellsPerAxis)
+      throw new IndexOutOfBoundsException("Tried to imprint an out-of-bounds rect.")
+
+    var count = 0
     for (x <- minX to maxX; y <- minY to maxY) {
       val pass = get(x, y) < simClock.clock
       if (pass) {
@@ -45,16 +55,15 @@ class ArableMap(
         count += 1
       }
     }
-
     count
   }
 
-  /** Run `f` once for each arable cell in this map, where `f` is a procedure
+  /** Run `p` once for each arable cell in this map, where `p` is a procedure
     * taking the `x` and `y` values for a given arable cell in the grid.*/
-  def forEachArableCell(f: (Int, Int) => Unit) = {
+  def forEachArableCell(p: (Int, Int) => Unit) = {
     for (i <- _grid.indices)
       if (_grid(i) != Int.MaxValue)
-        f(i%cellsPerAxis, i/cellsPerAxis)
+        p(i%cellsPerAxis, i/cellsPerAxis)
   }
 
   /** Produces a starting cell value that has a chance (defined by `Rules.set.arableCellBarrenRate`) to be barren.*/
@@ -66,9 +75,15 @@ class ArableMap(
   /** Set the value of the given grid cell.*/
   private def set(x: Int, y: Int, int: Int) = _grid.update(y*cellsPerAxis+x, int)
 
-  /** Convert a world-space X coordinate to grid-space.*/
-  private def toGridX(d: Double) = (d / cellWidth).toInt
+  /** Convert a world-space X or Y coordinate to grid-space, favoring the
+    * right-/bottom-most cell when the coordinate straddles a cell border.*/
+  private def toGrid(leftOrTop: Double, cellWidthOrHeight: Double) = (leftOrTop / cellWidthOrHeight).floor.toInt
 
-  /** Convert a world-space Y coordinate to grid-space.*/
-  private def toGridY(d: Double) = (d / cellHeight).toInt
+  /** Convert a world-space X or Y coordinate to grid-space, favoring the
+    * left-/top-most cell when the coordinate straddles a cell border.*/
+  private def toGridExclusive(rightOrBottom: Double, cellWidthOrHeight: Double) = {
+    val cell = (rightOrBottom / cellWidthOrHeight).toInt
+    val cellStart = cell * cellWidthOrHeight
+    if (rightOrBottom - cellStart > 0.0) cell else cell - 1
+  }
 }
