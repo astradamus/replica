@@ -9,7 +9,8 @@ class Simulator extends SimClock {
   @volatile private var _clock = 0
   @volatile private var _ticksPerSecond = 0.0
 
-  private val thread = new Thread(() => while (true) loop())
+  private var running = true
+  private val thread = new Thread(() => while (running) loop())
 
   private var _routines = Seq.empty[() => (Unit)]
 
@@ -29,6 +30,9 @@ class Simulator extends SimClock {
 
   /** Begins the simulation.*/
   def start() = thread.start()
+
+  /** Terminate the simulation.*/
+  def terminate() = { running = false }
 
   /** Run through one tick of the simulator.*/
   private def loop() = if (!simPaused) {

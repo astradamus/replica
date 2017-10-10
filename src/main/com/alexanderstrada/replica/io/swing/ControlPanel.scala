@@ -24,16 +24,29 @@ class ControlPanel(
 
   setup()
 
-
   override def paint(g: Graphics): Unit = {
     super.paint(g)
 
     statsTable.labelTime.setText(sim.clock.toString)
-    statsTable.labelPlantCount.setText(world.plants.size.toString)
-    statsTable.labelCountFruits.setText(world.fruits.size.toString)
+    val tpsString = ((sim.ticksPerSecond * 100).round / 100.0).toString
+    statsTable.labelTPS.setText(if (tpsString.contains('E')) "∞" else tpsString)
+    updateLifeCounts()
+  }
 
-    val string = ((sim.ticksPerSecond * 100).round / 100.0).toString
-    statsTable.labelTPS.setText(if (string.contains('E')) "∞" else string)
+  private def updateLifeCounts() = {
+    val plantCount = world.plants.size
+    val fruitCount = world.fruits.size
+
+    if (plantCount + fruitCount == 0) {
+      statsTable.labelPlantCount.setText("EXTINCT")
+      statsTable.labelPlantCount.setForeground(Color.ORANGE)
+      statsTable.labelCountFruits.setText("hit 'RESTART'")
+      statsTable.labelCountFruits.setForeground(Color.ORANGE)
+    }
+    else {
+      statsTable.labelPlantCount.setText(plantCount.toString)
+      statsTable.labelCountFruits.setText(fruitCount.toString)
+    }
   }
 
   private def updateStats() = {
@@ -81,7 +94,9 @@ class ControlPanel(
 
       statsTable,
       Box.createVerticalStrut(5),
-      new CpButton("Update Stats", _ => updateStats()))
+      new CpButton("Update Stats", _ => updateStats()),
+      Box.createVerticalStrut(15),
+      new CpButton("Restart", _ => SwingDemo.restart()))
 
     all.zipWithIndex.foreach(a => mk(a._2, a._1))
 
@@ -143,10 +158,10 @@ object ControlPanel {
     val rows = Seq(
       ("TIME: ", labelTime),
       ("TICKS PER SECOND: ", labelTPS),
-      Box.createRigidArea(new Dimension(225, 5)),
+      Box.createRigidArea(new Dimension(235, 5)),
       ("PLANTS: ", labelPlantCount),
       ("FRUITS: ", labelCountFruits),
-      Box.createRigidArea(new Dimension(225, 5)),
+      Box.createRigidArea(new Dimension(235, 5)),
       ("SMALLEST PLANT: ", labelPlantSmallest),
       ("BIGGEST PLANT: ", labelPlantBiggest),
       ("LEAST FRUIT PLANT: ", labelPlantFruitLeast),
@@ -168,7 +183,7 @@ object ControlPanel {
       gbc.gridy = row
       gbc.gridwidth = 2
       gbc.weightx = 0.0
-      add(Box.createRigidArea(new Dimension(225, 5)), gbc)
+      add(comp, gbc)
     }
 
     private def mkRow(row: Int, name: String, cell: CpCell) = {

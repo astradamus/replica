@@ -40,4 +40,10 @@ class Display(sim: Simulator,
 
   /** Start the rendering loop.*/
   def start() = renderTimer.start()
+
+  /** Terminate the rendering loop.*/
+  def terminate() = {
+    renderTimer.stop()
+    frame.dispose()
+  }
 }
