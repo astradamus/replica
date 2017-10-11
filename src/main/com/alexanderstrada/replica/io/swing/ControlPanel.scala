@@ -6,10 +6,9 @@ import javax.swing._
 import javax.swing.border.BevelBorder
 
 import com.alexanderstrada.replica.bot.Genome
-import com.alexanderstrada.replica.bot.plant.Plant
 import com.alexanderstrada.replica.io.swing.ControlPanel._
 import com.alexanderstrada.replica.sim.Simulator
-import com.alexanderstrada.replica.world.World
+import com.alexanderstrada.replica.world.{Data, World}
 
 /** A companion panel to the simulation panel. Provides the
   * user with statistics and controls for the displayed world.*/
@@ -33,6 +32,15 @@ class ControlPanel(
     updateLifeCounts()
   }
 
+  def updateData(data: Data) = Genome.allPlantGenes.foreach(g => {
+    val maybeLabels = statsTable.plantLabels.get(g)
+    maybeLabels.foreach(labels => data.latest(g).foreach(d => {
+      labels._2.setText(d._2._1.toString)
+      labels._3.setText(d._2._2.toString)
+      labels._4.setText(d._2._3.toString)
+    }))
+  })
+
   private def updateLifeCounts() = {
     val plantCount = world.plants.size
     val fruitCount = world.fruits.size
@@ -47,24 +55,6 @@ class ControlPanel(
       statsTable.labelPlantCount.setText(plantCount.toString)
       statsTable.labelCountFruits.setText(fruitCount.toString)
     }
-  }
-
-  private def updateStats() = {
-    def up(f: (Plant) => Double, smallest: CpCell, biggest: CpCell) = {
-      val sortPlants = world.plants.toSeq.map(f).map(i => (i * 100).round/100.0).sorted
-      if (sortPlants.nonEmpty) {
-        smallest.setText(sortPlants.head.toString)
-        biggest.setText(sortPlants.last.toString)
-      }
-      else {
-        smallest.setText("---")
-        biggest.setText("---")
-      }
-    }
-
-    up(_.genome(Genome.SIZE_TO_FRUIT), statsTable.labelPlantSmallest, statsTable.labelPlantBiggest)
-    up(_.genome(Genome.FRUIT_COUNT), statsTable.labelPlantFruitLeast, statsTable.labelPlantFruitMost)
-    up(_.genome(Genome.FRUIT_SIZE), statsTable.labelPlantFruitSmallest, statsTable.labelPlantFruitBiggest)
   }
 
   private def setup() = {
@@ -91,10 +81,7 @@ class ControlPanel(
         addChangeListener(_ => display.alphaArableMap = getValue/20.0f)
       },
       Box.createVerticalStrut(15),
-
       statsTable,
-      Box.createVerticalStrut(5),
-      new CpButton("Update Stats", _ => updateStats()),
       Box.createVerticalStrut(15),
       new CpButton("Restart", _ => SwingDemo.restart()))
 
@@ -144,12 +131,7 @@ object ControlPanel {
     val labelPlantCount = new CpCell("0")
     val labelCountFruits = new CpCell("0")
 
-    val labelPlantSmallest = new CpCell("0")
-    val labelPlantBiggest = new CpCell("0")
-    val labelPlantFruitLeast = new CpCell("0")
-    val labelPlantFruitMost = new CpCell("0")
-    val labelPlantFruitSmallest = new CpCell("0")
-    val labelPlantFruitBiggest = new CpCell("0")
+    val plantLabels = Genome.allPlantGenes.map(g => (g, (new CpCell(g.toString), new CpCell("-"), new CpCell("-"), new CpCell("-")))).toMap
 
     val gbc = new GridBagConstraints()
     gbc.fill = GridBagConstraints.HORIZONTAL
@@ -157,21 +139,34 @@ object ControlPanel {
 
     val rows = Seq(
       ("TIME: ", labelTime),
-      ("TICKS PER SECOND: ", labelTPS),
+      ("TPS: ", labelTPS),
       Box.createRigidArea(new Dimension(235, 5)),
       ("PLANTS: ", labelPlantCount),
       ("FRUITS: ", labelCountFruits),
       Box.createRigidArea(new Dimension(235, 5)),
-      ("SMALLEST PLANT: ", labelPlantSmallest),
-      ("BIGGEST PLANT: ", labelPlantBiggest),
-      ("LEAST FRUIT PLANT: ", labelPlantFruitLeast),
-      ("MOST FRUIT PLANT: ", labelPlantFruitMost),
-      ("SMALLEST FRUIT PLANT: ", labelPlantFruitSmallest),
-      ("BIGGEST FRUIT PLANT: ", labelPlantFruitBiggest)
-    )
+      (new CpCell("gene"), new CpCell("low"), new CpCell("avg"), new CpCell("hi"))
+    ) ++ plantLabels.values
 
     rows.zipWithIndex.foreach(rwi => {
       rwi._1 match {
+        case (name: CpCell, low: CpCell, average: CpCell, high: CpCell) =>
+          gbc.gridy = rwi._2
+
+          gbc.weightx = 0.00
+          gbc.gridx = 0
+          gbc.gridwidth = 2
+          add(name, gbc)
+
+          gbc.gridwidth = 1
+          gbc.weightx = 0.33
+
+          gbc.gridx = 2
+          add(low, gbc)
+          gbc.gridx = 3
+          add(average, gbc)
+          gbc.gridx = 4
+          add(high, gbc)
+
         case (s: String, c: CpCell) => mkRow(rwi._2, s, c)
         case (c: Component)         => mkGap(rwi._2, c)
         case _ =>
@@ -179,32 +174,25 @@ object ControlPanel {
     })
 
     private def mkGap(row: Int, comp: Component) = {
-      gbc.gridx = 1
+      gbc.gridx = 0
       gbc.gridy = row
-      gbc.gridwidth = 2
+      gbc.gridwidth = 5
       gbc.weightx = 0.0
       add(comp, gbc)
     }
 
     private def mkRow(row: Int, name: String, cell: CpCell) = {
-      gbc.gridwidth = 1
       gbc.gridy = row
 
-      gbc.weightx = 0.10
+      gbc.weightx = 0.40
       gbc.gridx = 0
-      add(Box.createGlue(), gbc)
-
-      gbc.weightx = 0.20
-      gbc.gridx = 1
+      gbc.gridwidth = 2
       add(new CpCell(name), gbc)
 
       gbc.weightx = 0.60
       gbc.gridx = 2
+      gbc.gridwidth = 3
       add(cell, gbc)
-
-      gbc.weightx = 0.10
-      gbc.gridx = 3
-      add(Box.createGlue(), gbc)
     }
   }
 }

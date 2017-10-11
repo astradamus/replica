@@ -4,7 +4,7 @@ import java.awt._
 import javax.swing._
 
 import com.alexanderstrada.replica.sim.Simulator
-import com.alexanderstrada.replica.world.World
+import com.alexanderstrada.replica.world.{Data, World}
 
 class Display(sim: Simulator,
               world: World,
@@ -40,6 +40,9 @@ class Display(sim: Simulator,
 
   /** Start the rendering loop.*/
   def start() = renderTimer.start()
+
+  /** Update the control panel with new data.*/
+  def updateData(data: Data) = controlPanel.updateData(data: Data)
 
   /** Terminate the rendering loop.*/
   def terminate() = {
