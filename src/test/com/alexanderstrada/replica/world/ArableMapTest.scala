@@ -3,9 +3,10 @@ package com.alexanderstrada.replica.world
 import com.alexanderstrada.replica.sim.SimClock
 import com.alexanderstrada.replica.space2d.{Calc, Rect}
 import com.alexanderstrada.replica.world.ArableMap.ImprintOutOfBoundsException
-import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ArableMapTest extends FlatSpec with Matchers {
+class ArableMapTest extends AnyFlatSpec with Matchers {
 
   private val mapSize = 100
   private val cellsPerAxis = 10

@@ -8,35 +8,35 @@ case class Rect(
 
   def this(x: Double, y: Double, w: Double, h: Double) = this(Vector2d(x, y), Vector2d(w, h))
 
-  def center = pos
+  def center: Vector2d = pos
 
-  def x = pos.x
-  def y = pos.y
-  def w = size.w
-  def h = size.h
+  def x: Double = pos.x
+  def y: Double = pos.y
+  def w: Double = size.w
+  def h: Double = size.h
 
-  def left = x - w/2
-  def top = y - h/2
-  def right = x + w/2
-  def bottom = y + h/2
+  def left: Double = x - w/2
+  def top: Double = y - h/2
+  def right: Double = x + w/2
+  def bottom: Double = y + h/2
 
-  def topLeft     = Vector2d(left, top)
-  def topRight    = Vector2d(right, top)
-  def bottomLeft  = Vector2d(left, bottom)
-  def bottomRight = Vector2d(right, bottom)
+  def topLeft: Vector2d     = Vector2d(left, top)
+  def topRight: Vector2d    = Vector2d(right, top)
+  def bottomLeft: Vector2d  = Vector2d(left, bottom)
+  def bottomRight: Vector2d = Vector2d(right, bottom)
 
-  def random = Vector2d(left + Random.nextDouble() * w,
+  def random: Vector2d = Vector2d(left + Random.nextDouble() * w,
                         top + Random.nextDouble() * h)
 
-  def contains(p: Vector2d) = (p.x >= left && p.x < right) && (p.y >= top && p.y < bottom)
-  def contains(r: Rect) = (left <= r.left) && (top <= r.top) && (right >= r.right) && (bottom >= r.bottom)
-  def intersects(r: Rect) = (r.left <= right && r.right >= left) && (r.top <= bottom && r.bottom >= top)
+  def contains(p: Vector2d): Boolean = (p.x >= left && p.x < right) && (p.y >= top && p.y < bottom)
+  def contains(r: Rect): Boolean = (left <= r.left) && (top <= r.top) && (right >= r.right) && (bottom >= r.bottom)
+  def intersects(r: Rect): Boolean = (r.left <= right && r.right >= left) && (r.top <= bottom && r.bottom >= top)
 
-  def offset(o: Vector2d) = Rect(pos + o, size)
+  def offset(o: Vector2d): Rect = Rect(pos + o, size)
 
-  def scale(d: Double) = Rect(pos, size*d)
+  def scale(d: Double): Rect = Rect(pos, size*d)
 
-  def subdivide = {
+  def subdivide: Seq[Rect] = {
     val divSize = size / 2
     val topLeftDivOrigin =  topLeft + ((center - topLeft) / 2)
     Seq(Rect(topLeftDivOrigin, divSize),
@@ -48,5 +48,5 @@ case class Rect(
 
 object Rect {
   def apply(x: Double, y: Double, w: Double, h: Double): Rect = apply(Vector2d(x, y), Vector2d(w, h))
-  def mkFromTopLeft(left: Double, top: Double, w: Double, h: Double) = apply(left + w/2, top + h/2, w, h)
+  def mkFromTopLeft(left: Double, top: Double, w: Double, h: Double): Rect = apply(left + w/2, top + h/2, w, h)
 }

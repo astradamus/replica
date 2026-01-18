@@ -23,34 +23,34 @@ class Plant(
   private var remainingLifespan = w.rules.calcPlantLifespan(genome)
 
   /** Advance one tick. Starve if not fed this tick.*/
-  def tick() = {
+  def tick(): Unit = {
     if (!fedThisTick) starve()
     fedThisTick = false
     age()
   }
 
   /** Grow if not yet germed, otherwise fruit.*/
-  def feed() = {
+  def feed(): Unit = {
     fedThisTick = true
     if (!germed) grow()
     else fruit()
   }
 
   /** Age. Die if `remainingLifespan` falls to `0`.*/
-  private def age() = {
+  private def age(): Unit = {
     remainingLifespan -= 1
     if (remainingLifespan <= 0)
       w.delete(this)
   }
 
   /** Shrink. Die if `size` falls below `1.0`.*/
-  private def starve() = {
+  private def starve(): Unit = {
     size -= size * w.rules.plantStarvationRate
     if (size < 1.0) w.delete(this)
   }
 
   /** Grow. Germ at target size.*/
-  private def grow() = {
+  private def grow(): Unit = {
     size += w.rules.plantGermFeedValue
 
     val stf = genome(Genome.SIZE_TO_FRUIT)
@@ -61,7 +61,7 @@ class Plant(
   }
 
   /** Grow fruit by `world.rules.plantFruitFeedValue` and spawn if fully grown.*/
-  private def fruit() = {
+  private def fruit(): Unit = {
     val fruitGrowth = w.rules.plantFruitFeedValue / fruitCount
     fruitsSize += fruitGrowth
     if (fruitsSize >= genome(Genome.FRUIT_SIZE))
@@ -69,7 +69,7 @@ class Plant(
   }
 
   /** Spawn fruit, reset for next crop.*/
-  private def spawnFruit() =  {
+  private def spawnFruit(): Unit =  {
     def mk() = new Fruit(
                  w.rules.calcFruitDropPos(this, fruitsSize),
                  fruitsSize,

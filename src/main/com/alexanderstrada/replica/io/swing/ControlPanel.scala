@@ -4,12 +4,13 @@ import java.awt._
 import java.awt.event.ActionListener
 import javax.swing._
 import javax.swing.border.BevelBorder
-
 import com.alexanderstrada.replica.bot.Genome
 import com.alexanderstrada.replica.bot.plant.Plant
 import com.alexanderstrada.replica.io.swing.ControlPanel._
 import com.alexanderstrada.replica.sim.Simulator
 import com.alexanderstrada.replica.world.World
+
+import java.io
 
 /** A companion panel to the simulation panel. Provides the
   * user with statistics and controls for the displayed world.*/
@@ -33,7 +34,7 @@ class ControlPanel(
     updateLifeCounts()
   }
 
-  private def updateLifeCounts() = {
+  private def updateLifeCounts(): Unit = {
     val plantCount = world.plants.size
     val fruitCount = world.fruits.size
 
@@ -49,8 +50,8 @@ class ControlPanel(
     }
   }
 
-  private def updateStats() = {
-    def up(f: (Plant) => Double, smallest: CpCell, biggest: CpCell) = {
+  private def updateStats(): Unit = {
+    def up(f: Plant => Double, smallest: CpCell, biggest: CpCell): Unit = {
       val sortPlants = world.plants.toSeq.map(f).map(i => (i * 100).round/100.0).sorted
       if (sortPlants.nonEmpty) {
         smallest.setText(sortPlants.head.toString)
@@ -67,7 +68,7 @@ class ControlPanel(
     up(_.genome(Genome.FRUIT_SIZE), statsTable.labelPlantFruitSmallest, statsTable.labelPlantFruitBiggest)
   }
 
-  private def setup() = {
+  private def setup(): Unit = {
     val gbc = new GridBagConstraints()
     gbc.fill = GridBagConstraints.NONE
     gbc.weighty = 0.0
@@ -100,7 +101,7 @@ class ControlPanel(
 
     all.zipWithIndex.foreach(a => mk(a._2, a._1))
 
-    def mk(y: Int, j: Component) = {
+    def mk(y: Int, j: Component): Unit = {
       gbc.gridy = y
       add(j, gbc)
     }
@@ -136,7 +137,7 @@ object ControlPanel {
     setVerticalAlignment(SwingConstants.CENTER)
   }
 
-  private class CpTable() extends JPanel(new GridBagLayout) with Styled {
+  private class CpTable extends JPanel(new GridBagLayout) with Styled {
 
     val labelTPS = new CpCell("0")
 
@@ -155,7 +156,7 @@ object ControlPanel {
     gbc.fill = GridBagConstraints.HORIZONTAL
     gbc.weighty = 0.0
 
-    val rows = Seq(
+    val rows: Seq[io.Serializable] = Seq(
       ("TIME: ", labelTime),
       ("TICKS PER SECOND: ", labelTPS),
       Box.createRigidArea(new Dimension(235, 5)),
@@ -173,12 +174,12 @@ object ControlPanel {
     rows.zipWithIndex.foreach(rwi => {
       rwi._1 match {
         case (s: String, c: CpCell) => mkRow(rwi._2, s, c)
-        case (c: Component)         => mkGap(rwi._2, c)
+        case c: Component         => mkGap(rwi._2, c)
         case _ =>
       }
     })
 
-    private def mkGap(row: Int, comp: Component) = {
+    private def mkGap(row: Int, comp: Component): Unit = {
       gbc.gridx = 1
       gbc.gridy = row
       gbc.gridwidth = 2
@@ -186,7 +187,7 @@ object ControlPanel {
       add(comp, gbc)
     }
 
-    private def mkRow(row: Int, name: String, cell: CpCell) = {
+    private def mkRow(row: Int, name: String, cell: CpCell): Unit = {
       gbc.gridwidth = 1
       gbc.gridy = row
 

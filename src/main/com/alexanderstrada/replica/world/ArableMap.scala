@@ -24,13 +24,13 @@ class ArableMap(
     barrenRate: Double,
     simClock: SimClock) {
 
-  val cellWidth = worldWidth/cellsPerAxis
-  val cellHeight = worldHeight/cellsPerAxis
+  val cellWidth: Double = worldWidth/cellsPerAxis
+  val cellHeight: Double = worldHeight/cellsPerAxis
 
   private val _grid = Array.tabulate(Calc.square(cellsPerAxis).toInt)(_ => maybeBarren)
 
   /** Return true if the given world-space vector is contained by a cell that has fed a plant this turn.*/
-  def isVectorTapped(v: Vector2d) = {
+  def isVectorTapped(v: Vector2d): Boolean = {
     val gX = toGrid(v.x, cellWidth)
     val gY = toGrid(v.y, cellHeight)
     get(gX, gY) >= simClock.clock
@@ -38,7 +38,7 @@ class ArableMap(
 
   /** Converts the given world-space rectangle to grid-space, taps each
     * untapped cell it touches, and returns the number of cells tapped.*/
-  def imprint(r: Rect) = {
+  def imprint(r: Rect): Int = {
 
     val minX = toGrid(r.left, cellWidth)
     val minY = toGrid(r.top, cellHeight)
@@ -61,7 +61,7 @@ class ArableMap(
 
   /** Run `p` once for each arable cell in this map, where `p` is a procedure
     * taking the `x` and `y` values for a given arable cell in the grid.*/
-  def forEachArableCell(p: (Int, Int) => Unit) = {
+  def forEachArableCell(p: (Int, Int) => Unit): Unit = {
     for (i <- _grid.indices)
       if (_grid(i) != Int.MaxValue)
         p(i%cellsPerAxis, i/cellsPerAxis)
@@ -74,7 +74,7 @@ class ArableMap(
   private def get(x: Int, y: Int) = _grid(y*cellsPerAxis+x)
 
   /** Set the value of the given grid cell.*/
-  private def set(x: Int, y: Int, int: Int) = _grid.update(y*cellsPerAxis+x, int)
+  private def set(x: Int, y: Int, int: Int): Unit = _grid.update(y*cellsPerAxis+x, int)
 
   /** Convert a world-space X or Y coordinate to grid-space, favoring the
     * right-/bottom-most cell when the coordinate straddles a cell border.*/

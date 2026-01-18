@@ -28,7 +28,7 @@ object Rules {
 
   class Standard extends Rules {
 
-    override val worldBounds = Rect.mkFromTopLeft(0, 0, 256000, 256000)
+    override val worldBounds: Rect = Rect.mkFromTopLeft(0, 0, 256000, 256000)
     override val arableCellsPerAxis = 50
     override val arableCellBarrenRate = 0.5
 
@@ -38,7 +38,7 @@ object Rules {
     override val plantFruitFeedValue = 0.05
 
     override val mutationChance = 0.005
-    override val basePlantGenome = Genome.defaultPlant
+    override val basePlantGenome: Genome = Genome.defaultPlant
 
     override def mkStarterPlants(w: World): Set[Plant] = {
       val pos = worldBounds.scale(0.75).random
@@ -51,9 +51,9 @@ object Rules {
       }
     }
 
-    override def calcPlantLifespan(g: Genome) = (g(Genome.SIZE_TO_FRUIT) * 100).toInt
-    override def calcDecayedFruitSize(sizeBeforeDecay: Double) = sizeBeforeDecay - 0.1
-    override def calcFruitDropPos(parent: Plant, fruitSize: Double) =
+    override def calcPlantLifespan(g: Genome): Int = (g(Genome.SIZE_TO_FRUIT) * 100).toInt
+    override def calcDecayedFruitSize(sizeBeforeDecay: Double): Double = sizeBeforeDecay - 0.1
+    override def calcFruitDropPos(parent: Plant, fruitSize: Double): Vector2d =
       parent.pos.offsetRandomly(parent.size * plantCanopyMultiplier*10)
   }
 }

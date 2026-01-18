@@ -9,13 +9,13 @@ import scala.util.Random
 
 /** Defines the characteristics that a bot can pass on to its offspring.*/
 case class Genome(genes: Map[Gene, Double]) {
-  def apply(gene: Gene) = genes(gene)
+  def apply(gene: Gene): Double = genes(gene)
 
   def color = new Color((genes(Genome.COLOR_RED) * 255).round.toInt,
                         (genes(Genome.COLOR_GRN) * 255).round.toInt,
                         (genes(Genome.COLOR_BLU) * 255).round.toInt)
 
-  def reproduceAsexually(mutationChance: Double) = copy(genes.map(kv => {
+  def reproduceAsexually(mutationChance: Double): Genome = copy(genes.map(kv => {
     val (gene, value) = kv
 
     val changeRange = value * gene.selectVariance(mutationChance)
@@ -33,7 +33,7 @@ object Genome {
                     val maximum: Double = Double.MaxValue,
                     val stdVariance: Double = 0.01,
                     val mutVariance: Double = 0.25) {
-    def selectVariance(mutationChance: Double) = if (Random.nextDouble() < mutationChance) mutVariance else stdVariance
+    def selectVariance(mutationChance: Double): Double = if (Random.nextDouble() < mutationChance) mutVariance else stdVariance
   }
 
   case object COLOR_RED                   extends Gene(0.30, 0.25, 1.0)

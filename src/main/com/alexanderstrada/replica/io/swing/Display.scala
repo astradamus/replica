@@ -34,15 +34,15 @@ class Display(sim: Simulator,
   splitPane.setRightComponent(controlPanel)
   frame.add(splitPane)
   frame.pack()
-  frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+  frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
   splitPane.setDividerLocation(0.85)
   frame.setVisible(true)
 
   /** Start the rendering loop.*/
-  def start() = renderTimer.start()
+  def start(): Unit = renderTimer.start()
 
   /** Terminate the rendering loop.*/
-  def terminate() = {
+  def terminate(): Unit = {
     renderTimer.stop()
     frame.dispose()
   }

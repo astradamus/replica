@@ -14,8 +14,8 @@ private class Camera(container: Container) extends MouseAdapter {
   private var _offset = Vector2d.ZERO
   private var was = Vector2d(0, 0)
 
-  def zoomLevel = _zoomLevel
-  def offset = _offset
+  def zoomLevel: Double = _zoomLevel
+  def offset: Vector2d = _offset
 
   override def mousePressed(e: MouseEvent): Unit = {
     was = Vector2d(e.getX, e.getY)

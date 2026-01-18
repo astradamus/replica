@@ -3,11 +3,11 @@ package com.alexanderstrada.replica.world
 import com.alexanderstrada.replica.bot.Bot
 import com.alexanderstrada.replica.bot.plant.{Fruit, Plant}
 import com.alexanderstrada.replica.sim.SimClock
-import com.alexanderstrada.replica.space2d.QuadTree
+import com.alexanderstrada.replica.space2d.{QuadTree, Rect}
 
 class World(val rules: Rules, simClock: SimClock) {
 
-  val bounds = rules.worldBounds
+  val bounds: Rect = rules.worldBounds
   val arableMap = new ArableMap(
     bounds.w,
     bounds.h,
@@ -22,11 +22,11 @@ class World(val rules: Rules, simClock: SimClock) {
   private var _fruits = Set.empty[Fruit]
   private val qt_fruits = QuadTree.empty[Fruit](bounds, 16, 12)
 
-  def plants = _plants
-  def fruits = _fruits
+  def plants: Set[Plant] = _plants
+  def fruits: Set[Fruit] = _fruits
 
   /** Advance the world by one tick.*/
-  def update() = {
+  def update(): Unit = {
     feedPlants()
     tickPlants()
     tickFruits()
@@ -60,18 +60,18 @@ class World(val rules: Rules, simClock: SimClock) {
   }
 
   /** Insert all of the given bots into the World.*/
-  def insertAll[A <: Bot](as: Set[A]) = as foreach insert
+  def insertAll[A <: Bot](as: Set[A]): Unit = as foreach insert
 
   /** Feed plants using an `ArableMap` to ensure only the tallest plant at any given point
     * is fed. See [[com.alexanderstrada.replica.world.ArableMap]] for more details.*/
-  private def feedPlants() = plantsBySize.sortBy(- _.size).foreach(p => {
+  private def feedPlants(): Unit = plantsBySize.sortBy(- _.size).foreach(p => {
     val ate = arableMap.imprint(p.toBoundingRect)
     (0 until ate).foreach(_ => p.feed())
   })
 
   /** Advance all plants one tick.*/
-  private def tickPlants() = _plants.foreach(_.tick())
+  private def tickPlants(): Unit = _plants.foreach(_.tick())
 
   /** Advance all fruits one tick.*/
-  private def tickFruits() = _fruits.foreach(_.tick(this))
+  private def tickFruits(): Unit = _fruits.foreach(_.tick(this))
 }

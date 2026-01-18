@@ -15,13 +15,13 @@ class Fruit(
 
   override def toMaxBoundingRect = Rect(pos, Vector2d.withBothAs(originalSize))
 
-  def tick(w: World) = {
+  def tick(w: World): Unit = {
     val s = w.rules.calcDecayedFruitSize(size)
     if (s > 0) size = s
     else sprout(w)
   }
 
-  private def sprout(w: World) = {
+  private def sprout(w: World): Unit = {
     w.delete(this)
     if (!w.arableMap.isVectorTapped(pos))
       w.insert(new Plant(pos, originalSize, genome, w))

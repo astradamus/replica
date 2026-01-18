@@ -19,12 +19,18 @@ class SwingDemo {
   display.start()
 }
 
-object SwingDemo extends App {
-  private var instance = new SwingDemo
+object SwingDemo {
+  private var instance: SwingDemo = _
 
-  def restart() = {
-    instance.sim.terminate()
-    instance.display.terminate()
+  def main(args: Array[String]): Unit = {
     instance = new SwingDemo
+  }
+
+  def restart(): Unit = {
+    if (instance != null) {
+      instance.sim.terminate()
+      instance.display.terminate()
+      instance = new SwingDemo
+    }
   }
 }

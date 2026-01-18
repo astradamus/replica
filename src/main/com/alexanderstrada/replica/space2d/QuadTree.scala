@@ -13,7 +13,7 @@ class QuadTree[A <: QuadTreeItem] private (
   private var nodes = Seq.empty[QuadTree[A]]
 
   /** Return true if this node is empty and has no descendants.*/
-  def isEmpty = items.isEmpty && nodes.isEmpty
+  def isEmpty: Boolean = items.isEmpty && nodes.isEmpty
 
   /** Return the total number of descendants of this node.*/
   def childCount: Int = nodes.map(_.childCount + 1).sum
@@ -69,7 +69,7 @@ class QuadTree[A <: QuadTreeItem] private (
   }
 
   /** Turn this leaf node into a branch node and pass down items that fit into any of the new descendants.*/
-  private def split() = {
+  private def split(): Unit = {
     nodes = bounds.subdivide.map(sb => new QuadTree[A](sb, level + 1, itemLimit, levelLimit, Some(this)))
 
     items = items.foldLeft(Set.empty[A])((out, i) => findFit(i) match {
@@ -97,7 +97,7 @@ class QuadTree[A <: QuadTreeItem] private (
   }
 
   /** Turn this branch node back into a leaf node, reclaiming the contents of all deleted descendants.*/
-  private def collapse() = {
+  private def collapse(): Unit = {
     items ++= collectChildItems
     nodes = Seq.empty[QuadTree[A]]
   }

@@ -12,16 +12,16 @@ class Simulator extends SimClock {
   private var running = true
   private val thread = new Thread(() => while (running) loop())
 
-  private var _routines = Seq.empty[() => (Unit)]
+  private var _routines = Seq.empty[() => Unit]
 
   /** The number of ticks that have elapsed since the simulation began.*/
-  def clock = _clock
+  def clock: Int = _clock
 
   /** The most recently calculated ticking speed.*/
-  def ticksPerSecond = _ticksPerSecond
+  def ticksPerSecond: Double = _ticksPerSecond
 
   /** Add a function to the end of the list of routines performed each tick by this Simulator.*/
-  def append(f: () => (Unit)) = {
+  def append(f: () => Unit): Unit = {
     if (thread.isAlive)
       throw new RuntimeException("Cannot append to a simulator after it has been started.")
 
@@ -29,13 +29,13 @@ class Simulator extends SimClock {
   }
 
   /** Begins the simulation.*/
-  def start() = thread.start()
+  def start(): Unit = thread.start()
 
   /** Terminate the simulation.*/
-  def terminate() = { running = false }
+  def terminate(): Unit = { running = false }
 
   /** Run through one tick of the simulator.*/
-  private def loop() = if (!simPaused) {
+  private def loop(): Unit = if (!simPaused) {
     val nt = System.nanoTime()
     _routines.foreach(_())
     _clock += 1
@@ -47,7 +47,7 @@ class Simulator extends SimClock {
     * <br>- If input is `>=` 1.0, it is rounded and the thread waits that many ms.
     * <br>- If input is `>` 0.0 but `<` 1.0, it is a percentage chance the thread will wait for 1ms.
     * <br>- If input is `<=` 0.0, the thread will not wait.*/
-  private def delay(d: Double) = {
+  private def delay(d: Double): Unit = {
     lazy val l = if (d >= 1.0) d.round else if (Random.nextDouble < d) 1L else 0L
 
     if (d > 0.0 && l >= 1) this.synchronized {
